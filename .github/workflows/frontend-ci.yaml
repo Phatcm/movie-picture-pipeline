@@ -7,9 +7,8 @@ on:
       - master
 
 jobs:
-  Linting:
+  NormalizeLineEndings:
     runs-on: ubuntu-latest
-
     steps:
     - name: Check the Repository
       uses: actions/checkout@v3
@@ -20,6 +19,13 @@ jobs:
     - name: Normalize Line Endings to LF
       run: |
         find . -type f -exec dos2unix {} +
+
+  Linting:
+    needs: NormalizeLineEndings
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check the Repository
+      uses: actions/checkout@v3
 
     - name: Use Node.js 18
       uses: actions/setup-node@v3
@@ -37,8 +43,8 @@ jobs:
       run: npm run lint
 
   Test:
+    needs: NormalizeLineEndings
     runs-on: ubuntu-latest
-
     steps:
     - name: Check the Repository
       uses: actions/checkout@v3
@@ -53,7 +59,7 @@ jobs:
     - name: Install Dependencies
       working-directory: starter/frontend
       run: npm ci
-  
+
     - name: Run Tests
       working-directory: starter/frontend
       run: npm run test
@@ -61,7 +67,6 @@ jobs:
   Build:
     needs: [Linting, Test]
     runs-on: ubuntu-latest
-
     steps:
     - name: Check the Repository
       uses: actions/checkout@v3
